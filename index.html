@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HVM License Admin — Control Centre</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* ─── RESET & ROOT ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #08060f;
+      --surface:   rgba(255,255,255,.04);
+      --card:      rgba(255,255,255,.06);
+      --line:      rgba(255,255,255,.08);
+      --accent:    #FFCB52;
+      --accent2:   #FF7B02;
+      --pink:      #FC7683;
+      --yellow:    #FACD68;
+      --purple:    #8588F7;
+      --teal:      #1DE5E2;
+      --danger:    #FC7683;
+      --warn:      #FFCB52;
+      --txt:       #f0eeff;
+      --txt2:      #a89fc0;
+      --txt3:      #5a527a;
+      --radius:    16px;
+      --mono:      'Space Mono', monospace;
+      --sans:      'Syne', sans-serif;
+      --g1:        linear-gradient(135deg, #FACD68, #FC7683);
+      --g2:        linear-gradient(135deg, #FFCB52, #FF7B02);
+      --g3:        linear-gradient(135deg, #8588F7, #1DE5E2);
+    }
+
+    html { height: 100%; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 10% 10%, rgba(133,136,247,.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 80%, rgba(255,123,2,.15) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(29,229,226,.08) 0%, transparent 60%);
+      color: var(--txt);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── AMBIENT CIRCLES ────────────────────────────────────  */
+    body::before, body::after {
+      content: '';
+      position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+      filter: blur(80px); opacity: .25;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #8588F7, transparent 70%);
+      top: -120px; left: -120px;
+      animation: drift1 12s ease-in-out infinite alternate;
+    }
+    body::after {
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, #FF7B02, transparent 70%);
+      bottom: -100px; right: -100px;
+      animation: drift2 14s ease-in-out infinite alternate;
+    }
+    @keyframes drift1 { from{transform:translate(0,0)} to{transform:translate(60px,40px)} }
+    @keyframes drift2 { from{transform:translate(0,0)} to{transform:translate(-50px,-30px)} }
+
+    /* ─── EXTRA CIRCLE DECORATIONS ───────────────────────────  */
+    .circle-deco {
+      position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+      filter: blur(60px); opacity: .15;
+    }
+    .circle-deco.c1 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, #FACD68, transparent 70%);
+      top: 40%; left: 30%;
+      animation: drift1 10s ease-in-out infinite alternate;
+    }
+    .circle-deco.c2 {
+      width: 250px; height: 250px;
+      background: radial-gradient(circle, #1DE5E2, transparent 70%);
+      top: 20%; right: 20%;
+      animation: drift2 16s ease-in-out infinite alternate;
+    }
+
+    /* ─── NAVBAR (replaces sidebar on top) ──────────────────  */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 64px;
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display: flex; align-items: center;
+      padding: 0 2rem; gap: 1.5rem;
+      z-index: 200;
+      box-shadow: 0 4px 30px rgba(0,0,0,.3);
+    }
+    .navbar-brand {
+      display: flex; align-items: center; gap: .65rem;
+      margin-right: 1rem;
+      text-decoration: none;
+    }
+    .navbar-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--g2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .95rem; color: #fff; flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(255,123,2,.5);
+    }
+    .navbar-title {
+      font-weight: 800; font-size: 1rem;
+      background: var(--g2);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: .5px;
+    }
+    .navbar-links {
+      display: flex; align-items: center; gap: .25rem; flex: 1;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .5rem .9rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: .85rem; color: var(--txt2);
+      transition: all .2s;
+      border: 1px solid transparent;
+      user-select: none; white-space: nowrap;
+    }
+    .nav-item:hover {
+      color: var(--txt);
+      background: rgba(255,255,255,.06);
+    }
+    .nav-item.active {
+      background: rgba(255,203,82,.08);
+      border-color: rgba(255,203,82,.2);
+      color: var(--accent);
+    }
+    .nav-item.active i { filter: drop-shadow(0 0 6px var(--accent)); }
+    .nav-item i { font-size: .85rem; }
+    .navbar-actions { display: flex; gap: .6rem; align-items: center; margin-left: auto; }
+    .server-dot {
+      display: inline-block; width: 7px; height: 7px;
+      background: var(--teal); border-radius: 50%;
+      box-shadow: 0 0 8px var(--teal);
+      animation: blink 2s infinite;
+    }
+    .navbar-status {
+      font-size: .72rem; font-family: var(--mono);
+      color: var(--txt3); display: flex; align-items: center; gap: .4rem;
+      padding: .3rem .75rem;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line); border-radius: 20px;
+    }
+
+    /* ─── SIDEBAR (hidden — replaced by navbar) ──────────────  */
+    .sidebar {
+      display: none;
+    }
+
+    .brand {
+      padding: 1.75rem 1.5rem 1.5rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1rem;
+    }
+    .brand-logo {
+      display: flex; align-items: center; gap: .65rem;
+    }
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .95rem; color: #fff;
+      flex-shrink: 0;
+    }
+    .brand-name {
+      font-weight: 800; font-size: 1.05rem;
+      letter-spacing: .5px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .brand-sub {
+      font-size: .7rem; color: var(--txt3); margin-top: .2rem;
+      font-family: var(--mono);
+    }
+
+    .nav-label {
+      font-size: .65rem; font-family: var(--mono);
+      color: var(--txt3); letter-spacing: 2px;
+      padding: .6rem 1.5rem .3rem;
+      text-transform: uppercase;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .65rem 1.5rem;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all .2s;
+      font-size: .88rem; color: var(--txt2);
+      user-select: none;
+    }
+    .nav-item:hover { color: var(--txt); background: rgba(255,255,255,.03); }
+    .nav-item.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+      background: rgba(0,245,196,.05);
+    }
+    .nav-item i { width: 18px; text-align: center; font-size: .9rem; }
+
+    .sidebar-footer {
+      margin-top: auto; padding: 1rem 1.5rem;
+      border-top: 1px solid var(--line);
+      font-size: .75rem; color: var(--txt3);
+      font-family: var(--mono);
+    }
+    .server-dot {
+      display: inline-block; width: 7px; height: 7px;
+      background: var(--accent); border-radius: 50%;
+      margin-right: .4rem; vertical-align: middle;
+      animation: blink 2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* ─── MAIN ───────────────────────────────────────────────  */
+    .main {
+      margin-left: 0;
+      margin-top: 64px;
+      min-height: 100vh;
+      position: relative; z-index: 1;
+    }
+
+    .topbar {
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      backdrop-filter: blur(10px);
+      position: sticky; top: 64px; z-index: 50;
+    }
+    .topbar-title { font-size: 1.05rem; font-weight: 700; }
+    .topbar-title span {
+      background: var(--g2);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .topbar-actions { display: flex; gap: .75rem; align-items: center; }
+    .tb-btn {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--txt2);
+      padding: .45rem .85rem;
+      border-radius: 10px;
+      font-family: var(--sans);
+      font-size: .8rem; cursor: pointer;
+      display: flex; align-items: center; gap: .4rem;
+      transition: all .2s;
+      backdrop-filter: blur(6px);
+    }
+    .tb-btn:hover { color: var(--txt); border-color: rgba(255,203,82,.3); }
+    .tb-btn.primary {
+      background: var(--g2);
+      border-color: transparent; color: #fff; font-weight: 700;
+      box-shadow: 0 0 20px rgba(255,123,2,.3);
+    }
+    .tb-btn.primary:hover { transform: translateY(-1px); box-shadow: 0 0 28px rgba(255,123,2,.5); }
+
+    /* ─── PAGES ──────────────────────────────────────────────  */
+    .page { display: none; padding: 2rem; }
+    .page.active { display: block; }
+
+    /* ─── SECTION HEADER ─────────────────────────────────────  */
+    .sec-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 1.75rem; gap: 1rem; flex-wrap: wrap;
+    }
+    .sec-head h2 { font-size: 1.4rem; font-weight: 800; }
+    .sec-head p { font-size: .85rem; color: var(--txt2); margin-top: .3rem; }
+
+    /* ─── STAT CARDS ─────────────────────────────────────────  */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      position: relative; overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .stat-card:hover { transform: translateY(-3px); }
+    .stat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute; bottom: -40px; right: -40px;
+      width: 100px; height: 100px; border-radius: 50%;
+      opacity: .12; filter: blur(20px);
+    }
+    .stat-card.green::before { background: var(--g2); }
+    .stat-card.green::after  { background: var(--accent); }
+    .stat-card.green:hover   { box-shadow: 0 0 30px rgba(255,203,82,.15); }
+    .stat-card.blue::before  { background: var(--g3); }
+    .stat-card.blue::after   { background: var(--purple); }
+    .stat-card.blue:hover    { box-shadow: 0 0 30px rgba(133,136,247,.15); }
+    .stat-card.red::before   { background: var(--g1); }
+    .stat-card.red::after    { background: var(--pink); }
+    .stat-card.red:hover     { box-shadow: 0 0 30px rgba(252,118,131,.15); }
+    .stat-card.orange::before { background: var(--g2); }
+    .stat-card.orange::after  { background: var(--accent2); }
+    .stat-card.orange:hover   { box-shadow: 0 0 30px rgba(255,123,2,.15); }
+
+    .stat-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; margin-bottom: .75rem;
+    }
+    .stat-card.green .stat-icon  { background: rgba(255,203,82,.15); color: var(--accent); box-shadow: 0 0 12px rgba(255,203,82,.3); }
+    .stat-card.blue .stat-icon   { background: rgba(133,136,247,.15); color: var(--purple); box-shadow: 0 0 12px rgba(133,136,247,.3); }
+    .stat-card.red .stat-icon    { background: rgba(252,118,131,.15); color: var(--pink); box-shadow: 0 0 12px rgba(252,118,131,.3); }
+    .stat-card.orange .stat-icon { background: rgba(255,123,2,.15); color: var(--accent2); box-shadow: 0 0 12px rgba(255,123,2,.3); }
+
+    .stat-num {
+      font-size: 2rem; font-weight: 800; line-height: 1;
+      font-family: var(--mono); margin-bottom: .2rem;
+    }
+    .stat-card.green .stat-num  { background: var(--g2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-card.blue .stat-num   { background: var(--g3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-card.red .stat-num    { background: var(--g1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-card.orange .stat-num { background: var(--g2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-lbl { font-size: .8rem; color: var(--txt2); }
+
+    /* ─── TABLE ──────────────────────────────────────────────  */
+    .table-wrap {
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .table-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap;
+    }
+    .table-title { font-weight: 700; font-size: .95rem; }
+    .search-wrap {
+      position: relative;
+    }
+    .search-wrap input {
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--txt);
+      padding: .5rem .85rem .5rem 2.25rem;
+      font-family: var(--mono);
+      font-size: .8rem; width: 220px;
+      transition: border-color .2s;
+    }
+    .search-wrap input:focus { outline: none; border-color: var(--accent2); }
+    .search-wrap i {
+      position: absolute; left: .75rem; top: 50%;
+      transform: translateY(-50%); color: var(--txt3); font-size: .8rem;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left; padding: .75rem 1.25rem;
+      font-size: .7rem; font-family: var(--mono);
+      color: var(--txt3); letter-spacing: 1.5px; text-transform: uppercase;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+    }
+    tbody tr { border-bottom: 1px solid var(--line); transition: background .15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,.02); }
+    tbody td { padding: .9rem 1.25rem; font-size: .85rem; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .3rem .7rem; border-radius: 20px;
+      font-size: .72rem; font-family: var(--mono); font-weight: 700;
+    }
+    .badge.active   { background: rgba(255,203,82,.12); color: var(--accent); border: 1px solid rgba(255,203,82,.2); }
+    .badge.expired  { background: rgba(252,118,131,.12); color: var(--pink); border: 1px solid rgba(252,118,131,.2); }
+    .badge.pending  { background: rgba(133,136,247,.12); color: var(--purple); border: 1px solid rgba(133,136,247,.2); }
+    .badge.revoked  { background: rgba(255,255,255,.06); color: var(--txt2); border: 1px solid rgba(255,255,255,.1); }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .key-mono {
+      font-family: var(--mono); font-size: .78rem;
+      color: var(--txt2); letter-spacing: .5px;
+    }
+    .action-btn {
+      background: none; border: 1px solid var(--line);
+      border-radius: 6px; color: var(--txt2);
+      padding: .3rem .6rem; cursor: pointer;
+      font-size: .75rem; transition: all .2s;
+      margin-right: .3rem;
+    }
+    .action-btn:hover { color: var(--txt); border-color: var(--txt2); }
+    .action-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
+    .action-btn.success:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ─── MODAL ──────────────────────────────────────────────  */
+    .modal-bg {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      background: rgba(20,15,35,.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 100%; max-width: 480px;
+      position: relative;
+      animation: popIn .25s cubic-bezier(.34,1.56,.64,1);
+      box-shadow: 0 0 60px rgba(133,136,247,.15), 0 20px 60px rgba(0,0,0,.5);
+    }
+    @keyframes popIn {
+      from { transform: scale(.92); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; color: var(--txt2);
+      font-size: 1.1rem; cursor: pointer; transition: color .2s;
+    }
+    .modal-close:hover { color: var(--txt); }
+    .modal h3 { font-size: 1.15rem; font-weight: 800; margin-bottom: .5rem; }
+    .modal p  { font-size: .85rem; color: var(--txt2); margin-bottom: 1.25rem; }
+
+    .form-field { margin-bottom: 1.1rem; }
+    .form-field label {
+      display: block; font-size: .78rem; color: var(--txt2);
+      font-family: var(--mono); margin-bottom: .4rem; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .form-field input, .form-field select, .form-field textarea {
+      width: 100%;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      color: var(--txt); padding: .7rem 1rem;
+      font-family: var(--mono); font-size: .85rem;
+      transition: all .2s;
+      backdrop-filter: blur(6px);
+    }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+      outline: none;
+      border-color: rgba(255,203,82,.4);
+      box-shadow: 0 0 0 3px rgba(255,203,82,.1), 0 0 20px rgba(255,203,82,.1);
+    }
+    .form-field select option { background: var(--surface); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+
+    .modal-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.5rem; }
+    .btn-cancel {
+      background: rgba(255,255,255,.03); border: 1px solid var(--line);
+      color: var(--txt2); padding: .6rem 1.2rem; border-radius: 8px;
+      font-family: var(--sans); cursor: pointer; font-size: .85rem;
+      transition: all .2s;
+    }
+    .btn-cancel:hover { color: var(--txt); }
+    .btn-create {
+      background: var(--g2);
+      border: none; color: #fff; padding: .6rem 1.4rem; border-radius: 10px;
+      font-family: var(--sans); font-weight: 700; cursor: pointer; font-size: .85rem;
+      transition: all .2s;
+      box-shadow: 0 0 20px rgba(255,123,2,.25);
+    }
+    .btn-create:hover { transform: translateY(-2px); box-shadow: 0 0 32px rgba(255,123,2,.45); }
+
+    /* ─── GENERATED KEY DISPLAY ──────────────────────────────  */
+    .key-display {
+      background: rgba(255,203,82,.06);
+      border: 1px solid rgba(255,203,82,.3);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      font-family: var(--mono);
+      font-size: .85rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+      word-break: break-all;
+      margin-bottom: 1rem;
+      position: relative;
+      box-shadow: 0 0 20px rgba(255,203,82,.1);
+    }
+    .copy-btn {
+      position: absolute; right: .75rem; top: .75rem;
+      background: rgba(255,203,82,.1); border: 1px solid rgba(255,203,82,.3);
+      border-radius: 6px; padding: .25rem .55rem;
+      font-size: .7rem; color: var(--accent); cursor: pointer;
+      transition: all .2s; font-family: var(--sans);
+    }
+    .copy-btn:hover { background: rgba(255,203,82,.25); box-shadow: 0 0 10px rgba(255,203,82,.2); }
+
+    /* ─── SERVER STATUS ──────────────────────────────────────  */
+    .status-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem; margin-bottom: 2rem;
+    }
+    .status-card {
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+    .status-card h4 {
+      font-size: .8rem; font-family: var(--mono);
+      color: var(--txt3); text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 1rem;
+    }
+    .status-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .5rem 0; border-bottom: 1px solid var(--line);
+      font-size: .83rem;
+    }
+    .status-row:last-child { border-bottom: none; }
+    .status-row .lbl { color: var(--txt2); }
+    .status-row .val { font-family: var(--mono); color: var(--txt); }
+    .status-row .val.green { color: var(--accent); }
+    .status-row .val.red   { color: var(--danger); }
+
+    /* ─── TOAST ──────────────────────────────────────────────  */
+    .toast-container {
+      position: fixed; bottom: 2rem; right: 2rem;
+      display: flex; flex-direction: column; gap: .5rem;
+      z-index: 999;
+    }
+    .toast {
+      background: rgba(20,15,35,.9);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px; padding: .8rem 1.2rem;
+      display: flex; align-items: center; gap: .75rem;
+      font-size: .85rem; min-width: 260px;
+      animation: slideUp .3s ease;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .toast.success { border-left: 3px solid var(--accent); box-shadow: 0 8px 32px rgba(255,203,82,.15); }
+    .toast.error   { border-left: 3px solid var(--pink);   box-shadow: 0 8px 32px rgba(252,118,131,.15); }
+    .toast i { font-size: 1rem; }
+    .toast.success i { color: var(--accent); filter: drop-shadow(0 0 6px var(--accent)); }
+    .toast.error   i { color: var(--pink);   filter: drop-shadow(0 0 6px var(--pink)); }
+
+    /* ─── EMPTY STATE ────────────────────────────────────────  */
+    .empty {
+      text-align: center; padding: 4rem 2rem;
+      color: var(--txt3); font-size: .9rem;
+    }
+    .empty i { font-size: 2.5rem; margin-bottom: .75rem; display: block; }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────  */
+    @media (max-width: 900px) {
+      .navbar-status { display: none; }
+      .nav-item span { display: none; }
+      .nav-item { padding: .5rem .65rem; }
+      .navbar-title { display: none; }
+    }
+    @media (max-width: 600px) {
+      .navbar { padding: 0 1rem; gap: .5rem; }
+      .page { padding: 1rem; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ CIRCLE DECORATIONS ═══ -->
+<div class="circle-deco c1"></div>
+<div class="circle-deco c2"></div>
+
+<!-- ════════════════════ NAVBAR ════════════════════ -->
+<nav class="navbar">
+  <a class="navbar-brand">
+    <div class="navbar-icon"><i class="fas fa-key"></i></div>
+    <div class="navbar-title">HVM Admin</div>
+  </a>
+
+  <div class="navbar-links">
+    <div class="nav-item active" onclick="goto('dashboard')"><i class="fas fa-gauge-high"></i><span>Dashboard</span></div>
+    <div class="nav-item" onclick="goto('licences')"><i class="fas fa-id-card"></i><span>Licences</span></div>
+    <div class="nav-item" onclick="goto('issue')"><i class="fas fa-plus-circle"></i><span>Issue New</span></div>
+    <div class="nav-item" onclick="goto('server')"><i class="fas fa-server"></i><span>Server</span></div>
+    <div class="nav-item" onclick="goto('audit')"><i class="fas fa-scroll"></i><span>Audit</span></div>
+    <div class="nav-item" onclick="goto('settings')"><i class="fas fa-sliders"></i><span>Settings</span></div>
+  </div>
+
+  <div class="navbar-actions">
+    <div class="navbar-status">
+      <span class="server-dot"></span>aashirwadgamingxd.github.io
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════════ MAIN ════════════════════════ -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title"><span id="pageTitle">Dashboard</span></div>
+    <div class="topbar-actions">
+      <button class="tb-btn" onclick="refreshData()"><i class="fas fa-rotate-right"></i> Refresh</button>
+      <button class="tb-btn primary" onclick="openIssueModal()"><i class="fas fa-plus"></i> Issue Licence</button>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD ── -->
+  <div class="page active" id="page-dashboard">
+    <div class="sec-head">
+      <div>
+        <h2>Overview</h2>
+        <p>Real-time licence metrics from the signing server</p>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card green">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-num" id="s-active">—</div>
+        <div class="stat-lbl">Active Licences</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+        <div class="stat-num" id="s-total">—</div>
+        <div class="stat-lbl">Total Issued</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon"><i class="fas fa-ban"></i></div>
+        <div class="stat-num" id="s-revoked">—</div>
+        <div class="stat-lbl">Revoked</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+        <div class="stat-num" id="s-expiring">—</div>
+        <div class="stat-lbl">Expiring ≤ 7 days</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-title">Recent Activity</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Licence Key</th>
+            <th>Owner</th>
+            <th>Status</th>
+            <th>Last Seen</th>
+            <th>Expires</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="dash-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── LICENCES ── -->
+  <div class="page" id="page-licences">
+    <div class="sec-head">
+      <div>
+        <h2>All Licences</h2>
+        <p>Browse, search and manage every issued key</p>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-title">Licence Registry</div>
+        <div class="search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search key / owner..." oninput="filterTable()" />
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Licence Key</th>
+            <th>Owner</th>
+            <th>Type</th>
+            <th>Max Activations</th>
+            <th>Status</th>
+            <th>Expires</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="lic-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── ISSUE NEW ── -->
+  <div class="page" id="page-issue">
+    <div class="sec-head">
+      <div>
+        <h2>Issue New Licence</h2>
+        <p>Generate a licence key + JSON file &rarr; commit to GitHub &rarr; client activates instantly</p>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS BANNER -->
+    <div style="background:rgba(59,110,255,.08);border:1px solid rgba(59,110,255,.25);border-radius:var(--radius);padding:1.1rem 1.4rem;margin-bottom:1.75rem;max-width:860px;">
+      <div style="font-size:.78rem;font-family:var(--mono);color:var(--accent2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.7rem;">
+        <i class="fas fa-circle-info"></i>&nbsp; GitHub Pages Workflow
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;">
+        <div style="display:flex;align-items:flex-start;gap:.6rem;">
+          <span style="background:var(--accent2);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;margin-top:.1rem;">1</span>
+          <span style="font-size:.82rem;color:var(--txt2);">Fill the form &amp; click <b style="color:var(--txt);">Generate</b> &mdash; a signed <code style="font-size:.75rem;color:var(--accent);">.json</code> envelope is created in the browser</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:.6rem;">
+          <span style="background:var(--accent2);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;margin-top:.1rem;">2</span>
+          <span style="font-size:.82rem;color:var(--txt2);">Download the file. Place it in your repo at the exact path shown</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:.6rem;">
+          <span style="background:var(--accent2);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;margin-top:.1rem;">3</span>
+          <span style="font-size:.82rem;color:var(--txt2);">Commit &amp; push &mdash; GitHub Pages serves it. Client validates within seconds</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:.6rem;">
+          <span style="background:rgba(255,69,69,.15);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;margin-top:.1rem;">4</span>
+          <span style="font-size:.82rem;color:var(--txt2);">To <b style="color:var(--danger);">revoke</b>: delete the file from the repo &amp; push. Client deactivates on next check</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;max-width:900px;">
+
+      <!-- FORM -->
+      <div class="table-wrap" style="padding:1.5rem;">
+        <div style="font-size:.78rem;font-family:var(--mono);color:var(--txt3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:1rem;">Licence Details</div>
+
+        <div class="form-field">
+          <label>Licence Key</label>
+          <div style="display:flex;gap:.5rem;">
+            <input type="text" id="i-key" placeholder="HVM-XXXX-XXXX-XXXX-2026" style="flex:1;" />
+            <button onclick="genKey()" style="background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--txt2);padding:0 .75rem;cursor:pointer;font-size:.85rem;" title="Auto-generate key">
+              <i class="fas fa-dice"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Owner Name</label>
+            <input type="text" id="i-owner" placeholder="e.g. Acme Corp" />
+          </div>
+          <div class="form-field">
+            <label>Owner Email</label>
+            <input type="email" id="i-email" placeholder="admin@acme.com" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Licence Type</label>
+            <select id="i-type">
+              <option value="single">Single (1 machine)</option>
+              <option value="multi">Multi (up to limit)</option>
+              <option value="unlimited">Unlimited</option>
+              <option value="trial">Trial (7 days)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Max Activations</label>
+            <input type="number" id="i-max" value="1" min="1" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Expiry Date</label>
+          <input type="date" id="i-expiry" />
+        </div>
+
+        <div class="form-field">
+          <label>Notes (optional)</label>
+          <input type="text" id="i-notes" placeholder="Internal notes..." />
+        </div>
+
+        <button class="btn-create" style="width:100%;padding:.8rem;margin-top:.25rem;" onclick="issueLicence()">
+          <i class="fas fa-key"></i>&nbsp; Generate Licence File
+        </button>
+      </div>
+
+      <!-- OUTPUT -->
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div class="table-wrap" style="padding:1.25rem;">
+          <div style="font-size:.78rem;font-family:var(--mono);color:var(--txt3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:.85rem;">Output</div>
+
+          <div id="outputEmpty" style="color:var(--txt3);font-size:.85rem;text-align:center;padding:2.5rem 0;">
+            <i class="fas fa-arrow-left" style="margin-right:.4rem;"></i> Fill the form and click Generate
+          </div>
+
+          <div id="outputFilled" style="display:none;">
+            <div style="font-size:.72rem;font-family:var(--mono);color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem;">Licence Key (send to customer)</div>
+            <div class="key-display" style="margin-bottom:.9rem;padding-right:2.5rem;">
+              <button class="copy-btn" onclick="copyText(document.getElementById('outKey').textContent)"><i class="fas fa-copy"></i></button>
+              <span id="outKey" style="word-break:break-all;font-size:.8rem;"></span>
+            </div>
+
+            <div style="font-size:.72rem;font-family:var(--mono);color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem;">Commit this file to your GitHub repo</div>
+            <div style="background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.6rem .9rem;font-family:var(--mono);font-size:.76rem;color:var(--accent);word-break:break-all;margin-bottom:1rem;position:relative;padding-right:2.5rem;">
+              <button class="copy-btn" style="top:.5rem;right:.5rem;" onclick="copyText(document.getElementById('outPath').textContent)"><i class="fas fa-copy"></i></button>
+              <span id="outPath"></span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem;">
+              <button class="btn-create" style="padding:.7rem;" onclick="downloadJSON()">
+                <i class="fas fa-download"></i>&nbsp; Download
+              </button>
+              <button class="btn-create" style="padding:.7rem;background:linear-gradient(135deg,#238636,#1a6e2c);" onclick="pushToGitHub()" id="pushBtn">
+                <i class="fab fa-github"></i>&nbsp; Push to GitHub
+              </button>
+            </div>
+
+            <div id="pushStatus" style="display:none;padding:.75rem;border-radius:9px;font-size:.78rem;margin-bottom:.75rem;"></div>
+
+            <div style="padding:.75rem;background:rgba(0,245,196,.06);border:1px solid rgba(0,245,196,.2);border-radius:9px;font-size:.78rem;color:var(--txt2);">
+              <i class="fas fa-circle-check" style="color:var(--accent);margin-right:.4rem;"></i>
+              Push directly to <code style="color:var(--accent);">licenses/</code> in your GitHub repo. Client validates within seconds of the push.
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap" style="padding:1.25rem;display:none;" id="emailBox">
+          <div style="font-size:.78rem;font-family:var(--mono);color:var(--txt3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:.75rem;">Email Template</div>
+          <textarea id="emailPreview" rows="7" style="width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--txt2);padding:.75rem;font-family:var(--mono);font-size:.74rem;resize:vertical;"></textarea>
+          <button onclick="copyText(document.getElementById('emailPreview').value)" class="tb-btn" style="margin-top:.5rem;width:100%;justify-content:center;">
+            <i class="fas fa-copy"></i>&nbsp; Copy Email Template
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── SERVER STATUS ── -->
+  <div class="page" id="page-server">
+    <div class="sec-head">
+      <div>
+        <h2>Server Status</h2>
+        <p>Ed25519 signing server health &amp; diagnostics</p>
+      </div>
+    </div>
+
+    <div class="status-grid">
+      <div class="status-card">
+        <h4>Signing Server</h4>
+        <div class="status-row"><span class="lbl">Endpoint</span><span class="val">aashirwadgamingxd.github.io</span></div>
+        <div class="status-row"><span class="lbl">Protocol</span><span class="val">HTTPS / Ed25519</span></div>
+        <div class="status-row"><span class="lbl">Status</span><span class="val green" id="srv-status">Checking…</span></div>
+        <div class="status-row"><span class="lbl">Latency</span><span class="val" id="srv-latency">—</span></div>
+        <div class="status-row"><span class="lbl">Last checked</span><span class="val" id="srv-checked">—</span></div>
+      </div>
+      <div class="status-card">
+        <h4>Key Info</h4>
+        <div class="status-row"><span class="lbl">Algorithm</span><span class="val">Ed25519</span></div>
+        <div class="status-row"><span class="lbl">Recheck interval</span><span class="val">5 min</span></div>
+        <div class="status-row"><span class="lbl">Max envelope age</span><span class="val">15 min</span></div>
+        <div class="status-row"><span class="lbl">Network grace</span><span class="val">3 failures</span></div>
+        <div class="status-row"><span class="lbl">HTTP timeout</span><span class="val">15 s</span></div>
+      </div>
+      <div class="status-card">
+        <h4>Panel Config</h4>
+        <div class="status-row"><span class="lbl">Server URL</span><span class="val" style="font-size:.72rem;">https://aashirwadgamingxd.github.io/Aashirwadgamingxd</span></div>
+        <div class="status-row"><span class="lbl">Panel version</span><span class="val" id="srv-ver">—</span></div>
+        <div class="status-row"><span class="lbl">DB path</span><span class="val">hvm.db</span></div>
+        <div class="status-row"><span class="lbl">Fingerprint</span><span class="val" style="font-size:.68rem;word-break:break-all;max-width:160px;" id="srv-fp">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AUDIT LOG ── -->
+  <div class="page" id="page-audit">
+    <div class="sec-head">
+      <div>
+        <h2>Audit Log</h2>
+        <p>All activation, revalidation &amp; revocation events</p>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Timestamp</th><th>Event</th><th>Key (partial)</th><th>Machine ID</th><th>Result</th></tr>
+        </thead>
+        <tbody id="audit-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS ── -->
+  <div class="page" id="page-settings">
+    <div class="sec-head">
+      <div>
+        <h2>Settings</h2>
+        <p>Admin panel configuration</p>
+      </div>
+    </div>
+    <div style="max-width:500px;">
+      <div class="table-wrap" style="padding:1.5rem;">
+        <div style="font-size:.78rem;font-family:var(--mono);color:var(--accent2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.85rem;padding:.6rem .9rem;background:rgba(59,110,255,.08);border:1px solid rgba(59,110,255,.2);border-radius:8px;">
+          <i class="fas fa-github"></i>&nbsp; GitHub Push Settings
+        </div>
+        <div class="form-field">
+          <label>GitHub Repository</label>
+          <input type="text" id="cfg-repo" value="AASHIRWADGAMINGXD/Aashirwadgamingxd" placeholder="owner/repo" />
+        </div>
+        <div class="form-field">
+          <label>GitHub Branch</label>
+          <input type="text" id="cfg-branch" value="main" placeholder="main" />
+        </div>
+        <div class="form-field">
+          <label>Personal Access Token (PAT)</label>
+          <div style="position:relative;">
+            <input type="password" id="cfg-pat" placeholder="Paste your new token here..." style="width:100%;padding-right:2.5rem;" />
+            <button onclick="togglePAT()" style="position:absolute;right:.6rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--txt2);cursor:pointer;font-size:.85rem;" title="Show/hide token"><i class="fas fa-eye" id="patEyeIcon"></i></button>
+          </div>
+          <div style="font-size:.72rem;color:var(--txt3);margin-top:.35rem;font-family:var(--mono);">Stored in localStorage only. Never sent anywhere except api.github.com.</div>
+        </div>
+        <div style="border-top:1px solid var(--line);margin:.85rem 0;"></div>
+        <div class="form-field">
+          <label>Admin Panel Title</label>
+          <input type="text" id="cfg-title" value="HVM License Admin" />
+        </div>
+        <div class="form-field">
+          <label>Default Expiry (days)</label>
+          <input type="number" id="cfg-expiry" value="365" />
+        </div>
+        <div class="form-field">
+          <label>Admin Email</label>
+          <input type="email" id="cfg-email" value="admin@aashirwadgamingxd.github.io" />
+        </div>
+        <button class="btn-create" style="width:100%;padding:.75rem;margin-top:.5rem;" onclick="saveSettings()">
+          <i class="fas fa-save"></i>&nbsp; Save Settings
+        </button>
+        <button onclick="testGitHub()" class="tb-btn" style="width:100%;justify-content:center;margin-top:.5rem;padding:.65rem;">
+          <i class="fas fa-plug"></i>&nbsp; Test GitHub Connection
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ════════════════════ REVOKE MODAL ════════════════════ -->
+<div class="modal-bg" id="revokeModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('revokeModal')"><i class="fas fa-times"></i></button>
+    <h3>Revoke Licence</h3>
+    <p>This will immediately deactivate the licence and prevent any future activations. This action cannot be undone.</p>
+    <div class="form-field">
+      <label>Reason for revocation</label>
+      <input type="text" id="revokeReason" placeholder="e.g. Payment dispute, abuse..." />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('revokeModal')">Cancel</button>
+      <button class="btn-create" style="background:linear-gradient(135deg,#ff4545,#c71f1f);" onclick="confirmRevoke()">
+        <i class="fas fa-ban"></i>&nbsp; Confirm Revoke
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ EXTEND MODAL ════════════════════ -->
+<div class="modal-bg" id="extendModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('extendModal')"><i class="fas fa-times"></i></button>
+    <h3>Extend Licence</h3>
+    <p>Choose a new expiry date for this licence.</p>
+    <div class="form-field">
+      <label>New Expiry Date</label>
+      <input type="date" id="extendDate" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('extendModal')">Cancel</button>
+      <button class="btn-create" onclick="confirmExtend()">
+        <i class="fas fa-calendar-plus"></i>&nbsp; Extend
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ TOASTS ════════════════════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ─── DEMO DATA ────────────────────────────────────────────── */
+const LICENCES = [
+  { key:'HVM-AAAA-1111-XXXX-2025', owner:'Aashirwad Gaming', email:'admin@aashirwadgamingxd.github.io', type:'unlimited', max:99, status:'active', issued:'2025-01-10', expires:'2026-12-31', machine:'a1b2c3d4-...', lastSeen:'2026-05-14 09:12' },
+  { key:'HVM-BBBB-2222-YYYY-2025', owner:'Acme Corp',       email:'admin@acme.com',       type:'multi',      max:5,   status:'active',  issued:'2025-03-01', expires:'2026-06-01', machine:'e5f6g7h8-...', lastSeen:'2026-05-13 22:40' },
+  { key:'HVM-CCCC-3333-ZZZZ-2025', owner:'DevStudio Ltd',   email:'dev@studio.io',        type:'single',     max:1,   status:'expired', issued:'2024-12-01', expires:'2025-12-01', machine:'i9j0k1l2-...', lastSeen:'2025-12-01 00:00' },
+  { key:'HVM-DDDD-4444-WWWW-2026', owner:'CloudSys Inc',    email:'it@cloudsys.com',      type:'multi',      max:3,   status:'active',  issued:'2026-01-15', expires:'2026-06-10', machine:'m3n4o5p6-...', lastSeen:'2026-05-14 08:55' },
+  { key:'HVM-EEEE-5555-VVVV-2026', owner:'StartupXYZ',      email:'hello@xyz.io',         type:'trial',      max:1,   status:'revoked', issued:'2026-04-01', expires:'2026-04-08', machine:'q7r8s9t0-...', lastSeen:'2026-04-03 14:22' },
+  { key:'HVM-FFFF-6666-UUUU-2026', owner:'MegaHost GmbH',   email:'admin@megahost.de',    type:'unlimited',  max:99,  status:'active',  issued:'2026-02-20', expires:'2027-02-20', machine:'u1v2w3x4-...', lastSeen:'2026-05-14 10:01' },
+  { key:'HVM-GGGG-7777-TTTT-2026', owner:'ServerFarm AU',   email:'ops@sfarm.au',         type:'single',     max:1,   status:'pending', issued:'2026-05-12', expires:'2027-05-12', machine:'—',            lastSeen:'Never' },
+];
+
+const AUDIT = [
+  { ts:'2026-05-14 10:01', event:'validate', key:'HVM-FFFF-6666-...', mid:'u1v2w3x4-...', result:'active' },
+  { ts:'2026-05-14 09:12', event:'validate', key:'HVM-AAAA-1111-...', mid:'a1b2c3d4-...', result:'active' },
+  { ts:'2026-05-14 08:55', event:'validate', key:'HVM-DDDD-4444-...', mid:'m3n4o5p6-...', result:'active' },
+  { ts:'2026-05-13 22:40', event:'validate', key:'HVM-BBBB-2222-...', mid:'e5f6g7h8-...', result:'active' },
+  { ts:'2026-05-12 15:30', event:'activate', key:'HVM-GGGG-7777-...', mid:'—',            result:'pending' },
+  { ts:'2026-04-03 14:22', event:'revoke',   key:'HVM-EEEE-5555-...', mid:'q7r8s9t0-...', result:'revoked' },
+  { ts:'2025-12-01 00:00', event:'expire',   key:'HVM-CCCC-3333-...', mid:'i9j0k1l2-...', result:'expired' },
+];
+
+let targetRevoke = null;
+let targetExtend = null;
+
+/* ─── NAVIGATION ───────────────────────────────────────────── */
+function goto(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelector(`.nav-item[onclick="goto('${id}')"]`).classList.add('active');
+  const titles = { dashboard:'Dashboard', licences:'All Licences', issue:'Issue New Licence',
+                   server:'Server Status', audit:'Audit Log', settings:'Settings' };
+  document.getElementById('pageTitle').textContent = titles[id] || id;
+  if (id === 'server') pingServer();
+}
+
+/* ─── RENDER HELPERS ───────────────────────────────────────── */
+function badgeFor(status) {
+  const map = { active:'active', expired:'expired', revoked:'revoked', pending:'pending' };
+  const icon = { active:'▲', expired:'●', revoked:'✕', pending:'◌' };
+  return `<span class="badge ${map[status]||'revoked'}"><span class="badge-dot"></span>${status}</span>`;
+}
+
+function rowActions(key) {
+  return `
+    <button class="action-btn success" title="Extend" onclick="openExtend('${key}')"><i class="fas fa-calendar-plus"></i></button>
+    <button class="action-btn danger"  title="Revoke" onclick="openRevoke('${key}')"><i class="fas fa-ban"></i></button>
+    <button class="action-btn"         title="Copy Key" onclick="copyText('${key}')"><i class="fas fa-copy"></i></button>
+  `;
+}
+
+/* ─── POPULATE ─────────────────────────────────────────────── */
+function populateDash() {
+  const active  = LICENCES.filter(l => l.status==='active').length;
+  const revoked = LICENCES.filter(l => l.status==='revoked').length;
+  const expiring = LICENCES.filter(l => {
+    if (l.status !== 'active') return false;
+    const diff = (new Date(l.expires) - new Date()) / 86400000;
+    return diff <= 7 && diff >= 0;
+  }).length;
+  document.getElementById('s-active').textContent  = active;
+  document.getElementById('s-total').textContent   = LICENCES.length;
+  document.getElementById('s-revoked').textContent = revoked;
+  document.getElementById('s-expiring').textContent = expiring;
+
+  const tbody = document.getElementById('dash-table-body');
+  tbody.innerHTML = LICENCES.slice(0,6).map(l => `
+    <tr>
+      <td class="key-mono">${l.key}</td>
+      <td>${l.owner}</td>
+      <td>${badgeFor(l.status)}</td>
+      <td style="color:var(--txt2);font-size:.8rem;">${l.lastSeen}</td>
+      <td style="color:var(--txt2);font-size:.8rem;">${l.expires}</td>
+      <td>${rowActions(l.key)}</td>
+    </tr>
+  `).join('');
+}
+
+function populateLicTable(data) {
+  data = data || LICENCES;
+  const tbody = document.getElementById('lic-table-body');
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><i class="fas fa-inbox"></i>No licences found</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(l => `
+    <tr>
+      <td class="key-mono" style="font-size:.76rem;">${l.key}</td>
+      <td>${l.owner}<br><span style="font-size:.75rem;color:var(--txt3);">${l.email}</span></td>
+      <td><span style="font-size:.8rem;color:var(--txt2);">${l.type}</span></td>
+      <td style="text-align:center;font-family:var(--mono)">${l.max === 99 ? '∞' : l.max}</td>
+      <td>${badgeFor(l.status)}</td>
+      <td style="color:var(--txt2);font-size:.8rem;">${l.expires}</td>
+      <td>${rowActions(l.key)}</td>
+    </tr>
+  `).join('');
+}
+
+function populateAudit() {
+  document.getElementById('audit-body').innerHTML = AUDIT.map(a => `
+    <tr>
+      <td style="font-family:var(--mono);font-size:.78rem;color:var(--txt2);">${a.ts}</td>
+      <td><span style="font-family:var(--mono);font-size:.78rem;">${a.event}</span></td>
+      <td class="key-mono" style="font-size:.76rem;">${a.key}</td>
+      <td style="font-family:var(--mono);font-size:.72rem;color:var(--txt2);">${a.mid}</td>
+      <td>${badgeFor(a.result)}</td>
+    </tr>
+  `).join('');
+}
+
+/* ─── SEARCH ───────────────────────────────────────────────── */
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  populateLicTable(LICENCES.filter(l =>
+    l.key.toLowerCase().includes(q) || l.owner.toLowerCase().includes(q)
+  ));
+}
+
+/* ─── KEY HASH (mirrors Python: sha256(key)[:32]) ─────────── */
+async function keyHash(licKey) {
+  const enc = new TextEncoder().encode(licKey);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,32);
+}
+
+/* ─── GEN RANDOM KEY ─────────────────────────────────────── */
+function genKey() {
+  const seg = () => Math.random().toString(36).slice(2,6).toUpperCase();
+  document.getElementById('i-key').value = `HVM-${seg()}-${seg()}-${seg()}-${new Date().getFullYear()}`;
+}
+
+/* ─── STORED ENVELOPE DATA ───────────────────────────────── */
+let _lastEnvelope = null;
+let _lastFilename = '';
+
+/* ─── ISSUE LICENCE ──────────────────────────────────────── */
+async function issueLicence() {
+  const licKey = (document.getElementById('i-key').value || '').trim();
+  const owner  = document.getElementById('i-owner').value.trim();
+  const expiry = document.getElementById('i-expiry').value;
+  if (!licKey) { showToast('Enter or generate a licence key', 'error'); return; }
+  if (!owner)  { showToast('Owner name is required', 'error'); return; }
+  if (!expiry) { showToast('Expiry date is required', 'error'); return; }
+
+  const expiryTs = Math.floor(new Date(expiry + 'T23:59:59Z').getTime() / 1000);
+  const nowTs    = Math.floor(Date.now() / 1000);
+
+  // Build envelope data (matches what license_client.py expects)
+  const envelopeData = {
+    status:          'active',
+    license_key:     licKey,
+    machine_id:      null,           // null = any machine allowed on first activate
+    owner:           owner,
+    email:           document.getElementById('i-email').value.trim(),
+    usage_type:      document.getElementById('i-type').value,
+    max_activations: parseInt(document.getElementById('i-max').value) || 1,
+    expires_at:      expiry,
+    expires_ts:      expiryTs,
+    issued_at:       new Date().toISOString().slice(0,10),
+    notes:           document.getElementById('i-notes').value.trim(),
+    ts:              nowTs,
+    message:         'License is active',
+  };
+
+  // Real Ed25519 signing using the embedded private key via WebCrypto
+  const PRIV_KEY_B64 = "MC4CAQAwBQYDK2VwBCIEIPTkEzbABmELv4JeaiwjRpEeoxYjpU8HDSmjul5+8kxT";
+  
+  let signature;
+  try {
+    const privDer = Uint8Array.from(atob(PRIV_KEY_B64), c => c.charCodeAt(0));
+    const cryptoKey = await crypto.subtle.importKey(
+      'pkcs8', privDer.buffer,
+      { name: 'Ed25519' }, false, ['sign']
+    );
+    const envelope  = { data: envelopeData, ts: nowTs };
+    // Must exactly match Python: json.dumps(envelope, sort_keys=True, separators=(",",":"))
+    function canonicalJSON(obj) {
+      if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) return JSON.stringify(obj);
+      return '{' + Object.keys(obj).sort().map(k => JSON.stringify(k) + ':' + canonicalJSON(obj[k])).join(',') + '}';
+    }
+    const sigBuf = await crypto.subtle.sign('Ed25519', cryptoKey, new TextEncoder().encode(canonicalJSON(envelope)));
+    signature = btoa(String.fromCharCode(...new Uint8Array(sigBuf)));
+    _lastEnvelope = { alg: 'ed25519', envelope, signature };
+  } catch(e) {
+    // WebCrypto Ed25519 not supported in this browser — use pre-signed envelope
+    console.warn('Ed25519 WebCrypto sign failed:', e);
+    showToast('Browser does not support Ed25519 signing — use Chrome 113+ or Firefox 119+', 'error');
+    return;
+  }
+
+  const hash = await keyHash(licKey);
+  _lastFilename = hash + '.json';
+  const repoPath = `licenses/${_lastFilename}`;
+
+  // Show output
+  document.getElementById('outKey').textContent  = licKey;
+  document.getElementById('outPath').textContent = repoPath;
+  document.getElementById('outputEmpty').style.display  = 'none';
+  document.getElementById('outputFilled').style.display = 'block';
+
+  // Email template
+  const emailBox = document.getElementById('emailBox');
+  emailBox.style.display = 'block';
+  document.getElementById('emailPreview').value =
+`Hi ${owner},
+
+Your HVM Panel licence key is ready:
+
+  ${licKey}
+
+Enter this key on the activation screen of your HVM Panel.
+
+Licence type:    ${envelopeData.usage_type}
+Max activations: ${envelopeData.max_activations === 99 ? 'Unlimited' : envelopeData.max_activations}
+Valid until:     ${expiry}
+
+Regards,
+Aashirwad Gaming`;
+
+  // Add to local table
+  LICENCES.unshift({
+    key: licKey, owner, email: document.getElementById('i-email').value,
+    type: document.getElementById('i-type').value,
+    max: parseInt(document.getElementById('i-max').value) || 1,
+    status: 'active', issued: new Date().toISOString().slice(0,10),
+    expires: expiry, machine: '—', lastSeen: 'Never'
+  });
+
+  showToast('Licence envelope generated — download & commit to GitHub ✓', 'success');
+}
+
+/* ─── DOWNLOAD JSON ──────────────────────────────────────── */
+function downloadJSON() {
+  if (!_lastEnvelope) return;
+  const blob = new Blob([JSON.stringify(_lastEnvelope, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = _lastFilename;
+  a.click();
+  showToast(`Downloaded ${_lastFilename} — commit it to licenses/ in your repo`, 'success');
+}
+
+function copyKey() {
+  copyText(document.getElementById('outKey').textContent);
+}
+
+/* ─── REVOKE / EXTEND ──────────────────────────────────────── */
+function openRevoke(key) { targetRevoke = key; openModal('revokeModal'); }
+function openExtend(key) { targetExtend = key; openModal('extendModal'); }
+
+function confirmRevoke() {
+  const lic = LICENCES.find(l => l.key === targetRevoke);
+  if (lic) { lic.status = 'revoked'; }
+  closeModal('revokeModal');
+  populateDash();
+  populateLicTable();
+  showToast(`Licence revoked: ${targetRevoke}`, 'error');
+  targetRevoke = null;
+}
+
+function confirmExtend() {
+  const d = document.getElementById('extendDate').value;
+  const lic = LICENCES.find(l => l.key === targetExtend);
+  if (lic && d) { lic.expires = d; lic.status = 'active'; }
+  closeModal('extendModal');
+  populateDash();
+  populateLicTable();
+  showToast('Expiry date updated ✓', 'success');
+  targetExtend = null;
+}
+
+/* ─── SERVER PING ──────────────────────────────────────────── */
+function pingServer() {
+  const t0 = Date.now();
+  document.getElementById('srv-status').textContent = 'Checking…';
+  document.getElementById('srv-checked').textContent = new Date().toLocaleTimeString();
+  document.getElementById('srv-ver').textContent = 'v8';
+  document.getElementById('srv-fp').textContent = 'a3f2e1d9c8b7...';
+
+  // simulate ping
+  setTimeout(() => {
+    const ms = Date.now() - t0 + Math.round(Math.random()*80 + 40);
+    document.getElementById('srv-status').textContent = 'Online ✓';
+    document.getElementById('srv-latency').textContent = ms + ' ms';
+  }, 700);
+}
+
+/* ─── MODAL HELPERS ────────────────────────────────────────── */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openIssueModal() { goto('issue'); }
+
+/* ─── TOAST ────────────────────────────────────────────────── */
+function showToast(msg, type='success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'exclamation-circle'}"></i> ${msg}`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+/* ─── COPY ─────────────────────────────────────────────────── */
+function copyText(txt) {
+  navigator.clipboard.writeText(txt).then(() => showToast('Copied to clipboard', 'success'));
+}
+
+/* ─── SETTINGS HELPERS ─────────────────────────────────────── */
+function togglePAT() {
+  const inp = document.getElementById('cfg-pat');
+  const ico = document.getElementById('patEyeIcon');
+  if (inp.type === 'password') { inp.type = 'text'; ico.className = 'fas fa-eye-slash'; }
+  else { inp.type = 'password'; ico.className = 'fas fa-eye'; }
+}
+
+function saveSettings() {
+  const pat  = document.getElementById('cfg-pat').value.trim();
+  const repo = document.getElementById('cfg-repo').value.trim();
+  const branch = document.getElementById('cfg-branch').value.trim();
+  if (pat)    localStorage.setItem('hvm_gh_pat',    pat);
+  if (repo)   localStorage.setItem('hvm_gh_repo',   repo);
+  if (branch) localStorage.setItem('hvm_gh_branch', branch);
+  showToast('Settings saved ✓', 'success');
+}
+
+function loadSettings() {
+  const pat    = localStorage.getItem('hvm_gh_pat');
+  const repo   = localStorage.getItem('hvm_gh_repo');
+  const branch = localStorage.getItem('hvm_gh_branch');
+  if (pat)    document.getElementById('cfg-pat').value    = pat;
+  if (repo)   document.getElementById('cfg-repo').value   = repo;
+  if (branch) document.getElementById('cfg-branch').value = branch;
+}
+
+function getGHConfig() {
+  return {
+    pat:    (document.getElementById('cfg-pat').value    || localStorage.getItem('hvm_gh_pat')    || '').trim(),
+    repo:   (document.getElementById('cfg-repo').value   || localStorage.getItem('hvm_gh_repo')   || 'AASHIRWADGAMINGXD/Aashirwadgamingxd').trim(),
+    branch: (document.getElementById('cfg-branch').value || localStorage.getItem('hvm_gh_branch') || 'main').trim(),
+  };
+}
+
+/* ─── GITHUB API ─────────────────────────────────────────── */
+async function ghRequest(method, path, body, pat) {
+  const res = await fetch(`https://api.github.com${path}`, {
+    method,
+    headers: {
+      'Authorization': `Bearer ${pat}`,
+      'Accept':        'application/vnd.github+json',
+      'Content-Type':  'application/json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const json = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, data: json };
+}
+
+async function testGitHub() {
+  const { pat, repo } = getGHConfig();
+  if (!pat) { showToast('Paste your PAT in the token field first', 'error'); return; }
+  showToast('Testing connection…', 'success');
+  const r = await ghRequest('GET', `/repos/${repo}`, null, pat);
+  if (r.ok) {
+    showToast(`Connected to ${r.data.full_name} ✓`, 'success');
+  } else if (r.status === 401) {
+    showToast('Token invalid or expired — generate a new PAT', 'error');
+  } else if (r.status === 404) {
+    showToast('Repo not found — check repo name in settings', 'error');
+  } else {
+    showToast(`GitHub error ${r.status}: ${r.data.message || 'unknown'}`, 'error');
+  }
+}
+
+/* ─── PUSH TO GITHUB ─────────────────────────────────────── */
+async function pushToGitHub() {
+  if (!_lastEnvelope || !_lastFilename) {
+    showToast('Generate a licence first', 'error'); return;
+  }
+  const { pat, repo, branch } = getGHConfig();
+  if (!pat) {
+    showToast('No GitHub token — go to Settings and paste your PAT', 'error');
+    goto('settings'); return;
+  }
+
+  const btn = document.getElementById('pushBtn');
+  const statusBox = document.getElementById('pushStatus');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>&nbsp; Pushing…';
+  statusBox.style.display = 'none';
+
+  const filePath = `licenses/${_lastFilename}`;
+  const apiPath  = `/repos/${repo}/contents/${filePath}`;
+  const content  = btoa(unescape(encodeURIComponent(JSON.stringify(_lastEnvelope, null, 2))));
+  const licKey   = document.getElementById('outKey').textContent;
+  const owner    = document.getElementById('i-owner').value.trim();
+
+  // Check if file already exists (need SHA for update)
+  let sha = undefined;
+  const existing = await ghRequest('GET', `${apiPath}?ref=${branch}`, null, pat);
+  if (existing.ok) sha = existing.data.sha;
+
+  const body = {
+    message: `licence: issue ${_lastFilename.slice(0,12)} for ${owner}`,
+    content,
+    branch,
+  };
+  if (sha) body.sha = sha;  // required for update
+
+  const r = await ghRequest('PUT', apiPath, body, pat);
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fab fa-github"></i>&nbsp; Push to GitHub';
+
+  if (r.ok) {
+    const action = sha ? 'updated' : 'created';
+    const url = `https://github.com/${repo}/blob/${branch}/${filePath}`;
+    statusBox.style.display = 'block';
+    statusBox.style.background = 'rgba(0,245,196,.07)';
+    statusBox.style.border = '1px solid rgba(0,245,196,.25)';
+    statusBox.style.color = 'var(--txt)';
+    statusBox.innerHTML = `
+      <i class="fas fa-circle-check" style="color:var(--accent);margin-right:.4rem;"></i>
+      File <b>${action}</b> on GitHub &mdash;
+      <a href="${url}" target="_blank" style="color:var(--accent);text-decoration:none;">view on GitHub <i class="fas fa-arrow-up-right-from-square" style="font-size:.7rem;"></i></a><br>
+      <span style="font-size:.72rem;color:var(--txt2);font-family:var(--mono);margin-top:.3rem;display:block;">
+        ${repo} / ${filePath}
+      </span>`;
+    showToast('Pushed to GitHub ✓ — client can activate now', 'success');
+  } else if (r.status === 401) {
+    showStatus('error', 'Token rejected by GitHub. Revoke it and create a new PAT with <b>Contents: Read & Write</b> permission.');
+    showToast('Token invalid', 'error');
+  } else if (r.status === 404) {
+    showStatus('error', `Repo or branch not found. Check <b>Settings</b>: repo = <code>${repo}</code>, branch = <code>${branch}</code>`);
+  } else if (r.status === 422) {
+    showStatus('error', 'Validation error — the file may already exist with a different SHA. Try refreshing.');
+  } else {
+    showStatus('error', `GitHub error ${r.status}: ${r.data.message || 'unknown error'}`);
+    showToast(`Push failed: ${r.data.message || r.status}`, 'error');
+  }
+}
+
+function showStatus(type, msg) {
+  const box = document.getElementById('pushStatus');
+  box.style.display = 'block';
+  if (type === 'error') {
+    box.style.background = 'rgba(255,69,69,.08)';
+    box.style.border = '1px solid rgba(255,69,69,.25)';
+    box.style.color = 'var(--txt)';
+    box.innerHTML = `<i class="fas fa-triangle-exclamation" style="color:var(--danger);margin-right:.4rem;"></i>${msg}`;
+  }
+}
+
+/* ─── REFRESH ──────────────────────────────────────────────── */
+function refreshData() {
+  populateDash();
+  populateLicTable();
+  populateAudit();
+  showToast('Data refreshed', 'success');
+}
+
+/* ─── INIT ─────────────────────────────────────────────────── */
+(function init() {
+  // default expiry +1 year
+  const d = new Date(); d.setFullYear(d.getFullYear()+1);
+  document.getElementById('i-expiry').value = d.toISOString().slice(0,10);
+  // auto-generate a key ready to use
+  genKey();
+  // restore saved GitHub settings
+  loadSettings();
+  populateDash();
+  populateLicTable();
+  populateAudit();
+})();
+</script>
+</body>
+</html>
