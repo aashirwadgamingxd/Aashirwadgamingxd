@@ -1,0 +1,22 @@
+{
+  "alg": "ed25519",
+  "envelope": {
+    "data": {
+      "status": "active",
+      "license_key": "HVM-DJRE-EUOO-POUD-2026",
+      "machine_id": null,
+      "owner": "B",
+      "email": "yessmartypiefans3.0@gmail.com",
+      "usage_type": "single",
+      "max_activations": 1,
+      "expires_at": "2027-10-03",
+      "expires_ts": 1822607999,
+      "issued_at": "2026-10-03",
+      "notes": "",
+      "ts": 1790999788,
+      "message": "License is active"
+    },
+    "ts": 1790999788
+  },
+  "signature": "Zlx30Xa3XbB24ObnuD0DyTcuugOlAJYebrU+j8M1HZzQhJphQ56MWsUyrKdxn2nrEARUvtnI/jOI1QkLyj96CA=="
+}
