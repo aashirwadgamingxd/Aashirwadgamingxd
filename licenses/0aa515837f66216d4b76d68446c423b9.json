@@ -1,0 +1,22 @@
+{
+  "alg": "ed25519",
+  "envelope": {
+    "data": {
+      "status": "active",
+      "license_key": "HVM-JG9C-7SH4-R2PC-2026",
+      "machine_id": null,
+      "owner": "B",
+      "email": "yessmartypiefans3.0@gmail.com",
+      "usage_type": "single",
+      "max_activations": 1,
+      "expires_at": "2027-10-06",
+      "expires_ts": 1822867199,
+      "issued_at": "2026-10-06",
+      "notes": "",
+      "ts": 1791248352,
+      "message": "License is active"
+    },
+    "ts": 1791248352
+  },
+  "signature": "8GyyZtEC2q4bNll5xg0ZV4jMT/aRPsIQ7ngQ8xWSREWgPAYN4rwjdD1LdmuqgKnFxFMrS4hAwNtNg5We1aADAQ=="
+}
