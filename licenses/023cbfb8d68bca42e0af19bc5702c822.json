@@ -1,0 +1,22 @@
+{
+  "alg": "ed25519",
+  "envelope": {
+    "data": {
+      "status": "active",
+      "license_key": "HVM-1SSF-QHS4-OV4H-2026",
+      "machine_id": null,
+      "owner": "B",
+      "email": "admin@gmail.com",
+      "usage_type": "unlimited",
+      "max_activations": 1,
+      "expires_at": "2027-10-06",
+      "expires_ts": 1822867199,
+      "issued_at": "2026-10-06",
+      "notes": "",
+      "ts": 1791248535,
+      "message": "License is active"
+    },
+    "ts": 1791248535
+  },
+  "signature": "rfFVXKw51+SLtT3P3CLAtLJfJLGdr7zkloyMDezkPreXlkxeZhbXKwGEoeodSg7EB4w58AV/kCLvTx2u3xXbDQ=="
+}
