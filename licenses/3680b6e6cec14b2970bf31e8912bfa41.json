@@ -1,0 +1,22 @@
+{
+  "alg": "ed25519",
+  "envelope": {
+    "data": {
+      "status": "active",
+      "license_key": "HVM-AJRP-TFL9-N4LE-2026",
+      "machine_id": null,
+      "owner": "Youtube",
+      "email": "admi25@gmsil.com",
+      "usage_type": "single",
+      "max_activations": 1,
+      "expires_at": "2027-10-13",
+      "expires_ts": 1823471999,
+      "issued_at": "2026-10-13",
+      "notes": "",
+      "ts": 1791905018,
+      "message": "License is active"
+    },
+    "ts": 1791905018
+  },
+  "signature": "bHzxt04rZ+sotVwd7zIiEsDpQh3QSvmM3eIfAZCUGWz6xt8jItYnJhBwCN0v4Fs1waE4njiA1zY4Oxx3wpQwAA=="
+}
