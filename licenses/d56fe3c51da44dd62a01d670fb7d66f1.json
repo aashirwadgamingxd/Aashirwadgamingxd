@@ -1,0 +1,22 @@
+{
+  "alg": "ed25519",
+  "envelope": {
+    "data": {
+      "status": "active",
+      "license_key": "HVM-ECOB-UCWB-XBL8-2026",
+      "machine_id": null,
+      "owner": "Badmum",
+      "email": "admin@gmail.com",
+      "usage_type": "single",
+      "max_activations": 100,
+      "expires_at": "2027-10-21",
+      "expires_ts": 1824163199,
+      "issued_at": "2026-10-21",
+      "notes": "",
+      "ts": 1792565909,
+      "message": "License is active"
+    },
+    "ts": 1792565909
+  },
+  "signature": "5bbN+vRC8u1hsM3CwjZY1cSNzwtJvpBXVAI9Fd02JzaayJG5HJ/JVWIe0czKBuCCNAWqZK1iglUxPapj+3Z6CA=="
+}
