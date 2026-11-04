@@ -1,0 +1,22 @@
+{
+  "alg": "ed25519",
+  "envelope": {
+    "data": {
+      "status": "active",
+      "license_key": "HVM-OEEN-MDDB-BC4Z-2026",
+      "machine_id": null,
+      "owner": "Bd",
+      "email": "admin@gmail.com",
+      "usage_type": "single",
+      "max_activations": 1,
+      "expires_at": "2027-11-04",
+      "expires_ts": 1825372799,
+      "issued_at": "2026-11-04",
+      "notes": "",
+      "ts": 1793803780,
+      "message": "License is active"
+    },
+    "ts": 1793803780
+  },
+  "signature": "qBfeUnlNL+efhAZhoKgxSHpHskWWk68099DChs7ekn+hkhYcosZ1luwvtIOFnN9hQgemcw5dtkHWfkxMHXxqBw=="
+}
