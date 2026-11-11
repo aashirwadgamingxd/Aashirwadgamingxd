@@ -1,0 +1,22 @@
+{
+  "alg": "ed25519",
+  "envelope": {
+    "data": {
+      "status": "active",
+      "license_key": "HVM-YJFU-WB4E-7EOB-2026",
+      "machine_id": null,
+      "owner": "A",
+      "email": "admin2@gmail.com",
+      "usage_type": "unlimited",
+      "max_activations": 99,
+      "expires_at": "2040-11-11",
+      "expires_ts": 2236291199,
+      "issued_at": "2026-11-11",
+      "notes": "",
+      "ts": 1794409654,
+      "message": "License is active"
+    },
+    "ts": 1794409654
+  },
+  "signature": "FPbWF7f6mlwEYKQqW5sj6YeFOXRcC+cP4x18ZqowwWot+eHhpkjbwxHjyqPTTZ0949cUWrJdPmgiAHuBUxFOAg=="
+}
