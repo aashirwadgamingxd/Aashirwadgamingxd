@@ -1,0 +1,22 @@
+{
+  "alg": "ed25519",
+  "envelope": {
+    "data": {
+      "status": "active",
+      "license_key": "HVM-T7KU-KSNL-LLG1-2026",
+      "machine_id": null,
+      "owner": "Admin38",
+      "email": "gaming@gmail.com",
+      "usage_type": "unlimited",
+      "max_activations": 9999999,
+      "expires_at": "2058-11-18",
+      "expires_ts": 2804889599,
+      "issued_at": "2026-11-18",
+      "notes": "",
+      "ts": 1795016475,
+      "message": "License is active"
+    },
+    "ts": 1795016475
+  },
+  "signature": "KNZr034GwKTUn2cnzISnvb1NPuwUtcXL4608hDr9c8FBmmq7zPbkgYWGiARKGMu4Xc52TqhcNe+QfbfjDbO9Dw=="
+}
